@@ -1,0 +1,164 @@
+name: prototipo_mlkit
+description: "Un prototipo utilizando Google ML Kit con Flutter"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  firebase_core: 3.8.0
+  firebase_storage: 12.3.6
+  firebase_auth: 5.3.3
+  google_mlkit_face_detection: ^0.12.0
+  camera: ^0.11.0+2
+  image_picker: ^1.1.2
+  path_provider: ^2.1.2
+  image: ^4.5.2
+  flutter_exif_rotation: ^0.5.2
+  intl: ^0.20.0
+  path: ^1.9.0
+  permission_handler: ^11.0.0
+  carousel_slider: ^5.0.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter 
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^5.0.0
+  flutter_driver:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/carousel/facial_detection_image.webp
+    - assets/carousel/machinelearning.webp
+    - assets/carousel/ml.png
+    - assets/carousel/mlkit.jpg
+    - assets/carousel/tensorflow.jpeg
+    - assets/
+    - assets/wider_face_val_bbx_gt.txt
+    - assets/images/
+    - assets/images/0--Parade/
+    - assets/images/1--Handshaking/
+    - assets/images/2--Demonstration/
+    - assets/images/3--Riot/
+    - assets/images/4--Dancing/
+    - assets/images/5--Car_Accident/
+    - assets/images/6--Funeral/
+    - assets/images/7--Cheering/
+    - assets/images/8--Election_Campain/
+    - assets/images/9--Press_Conference/
+    - assets/images/10--People_Marching/
+    - assets/images/11--Meeting/
+    - assets/images/12--Group/
+    - assets/images/13--Interview/
+    - assets/images/14--Traffic/
+    - assets/images/15--Stock_Market/
+    - assets/images/16--Award_Ceremony/
+    - assets/images/17--Ceremony/
+    - assets/images/18--Concerts/
+    - assets/images/19--Couple/
+    - assets/images/20--Family_Group/
+    - assets/images/21--Festival/
+    - assets/images/22--Picnic/
+    - assets/images/23--Shoppers/
+    - assets/images/24--Soldier_Firing/
+    - assets/images/25--Soldier_Patrol/
+    - assets/images/26--Soldier_Drilling/
+    - assets/images/27--Spa/
+    - assets/images/28--Sports_Fan/
+    - assets/images/29--Students_Schoolkids/
+    - assets/images/30--Surgeons/
+    - assets/images/31--Waiter_Waitress/
+    - assets/images/32--Worker_Laborer/
+    - assets/images/33--Running/
+    - assets/images/34--Baseball/
+    - assets/images/35--Basketball/
+    - assets/images/36--Football/
+    - assets/images/37--Soccer/
+    - assets/images/38--Tennis/
+    - assets/images/39--Ice_Skating/
+    - assets/images/40--Gymnastics/
+    - assets/images/41--Swimming/
+    - assets/images/42--Car_Racing/
+    - assets/images/43--Row_Boat/
+    - assets/images/44--Aerobics/
+    - assets/images/45--Balloonist/
+    - assets/images/46--Jockey/
+    - assets/images/47--Matador_Bullfighter/
+    - assets/images/48--Parachutist_Paratrooper/
+    - assets/images/49--Greeting/
+    - assets/images/50--Celebration_Or_Party/
+    - assets/images/51--Dresses/
+    - assets/images/52--Photographers/
+    - assets/images/53--Raid/
+    - assets/images/54--Rescue/
+    - assets/images/55--Sports_Coach_Trainer/
+    - assets/images/56--Voter/
+    - assets/images/57--Angler/
+    - assets/images/58--Hockey/
+    - assets/images/59--people--driving--car/
+    - assets/images/60--No_Face/
+    - assets/images/61--Street_Battle/
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
