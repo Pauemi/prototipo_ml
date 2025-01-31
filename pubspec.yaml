@@ -43,6 +43,7 @@ dependencies:
   intl: ^0.20.0
   path: ^1.9.0
   permission_handler: ^11.3.1
+  device_info_plus: ^11.2.2
   carousel_slider: ^5.0.0
   cupertino_icons: ^1.0.8
 

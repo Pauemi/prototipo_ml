@@ -1,6 +1,7 @@
 // lib/homepage.dart
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -41,57 +42,73 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<bool> requestStoragePermission() async {
-  // Verificar la versión de Android
+  print('📁 Solicitando permisos de almacenamiento...');
   if (Platform.isAndroid) {
-    if (await Permission.storage.isGranted) {
-      print('✅ Permiso de almacenamiento ya concedido.');
-      return true;
-    }
+    int sdkInt = await _getAndroidSdkInt();
+    print('📱 Versión SDK de Android: $sdkInt');
 
-    // Para Android 13 y superiores
-    if (Platform.version.contains('33') || Platform.version.compareTo('33') > 0) {
-      // Solicitar permisos específicos
-      var statusImages = await Permission.photos.status;
-      var statusVideos = await Permission.videos.status;
-      var statusAudio = await Permission.audio.status;
+    if (sdkInt >= 33) {
+      // Android 13+ permisos específicos
+      print('🔍 Solicitando permisos específicos para Android 13+');
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.photos, // Para imágenes
+        Permission.videos, // Para videos
+        Permission.audio,  // Para audio
+      ].request();
 
-      if (!statusImages.isGranted) {
-        statusImages = await Permission.photos.request();
-      }
-      if (!statusVideos.isGranted) {
-        statusVideos = await Permission.videos.request();
-      }
-      if (!statusAudio.isGranted) {
-        statusAudio = await Permission.audio.request();
-      }
+      // Registrar estados de permisos
+      statuses.forEach((permission, status) {
+        print('🔸 Permiso $permission: $status');
+      });
 
-      if (statusImages.isGranted && statusVideos.isGranted && statusAudio.isGranted) {
-        print('✅ Permisos de almacenamiento concedidos.');
-        return true;
-      } else {
-        print('❌ Permisos de almacenamiento denegados.');
-        return false;
+      bool allGranted = statuses.values.every((status) => status.isGranted);
+
+      if (!allGranted) {
+        print('❌ No se concedieron todos los permisos. Abriendo configuración.');
+        await openAppSettings();
       }
+      return allGranted;
     } else {
-      // Para versiones anteriores a Android 13
-      var status = await Permission.storage.request();
+      // Android < 13 permisos tradicionales
+      print('Solicitando permisos tradicionales para Android < 13');
+      PermissionStatus status = await Permission.storage.request();
+      print('Estado del permiso storage: $status');
 
       if (status.isGranted) {
-        print('✅ Permiso de almacenamiento concedido.');
         return true;
       } else if (status.isPermanentlyDenied) {
-        print('❌ Permiso de almacenamiento denegado permanentemente. Abriendo configuración.');
+        print('Permiso denegado permanentemente. Abriendo configuración.');
         await openAppSettings();
         return false;
       } else {
-        print('❌ Permiso de almacenamiento denegado.');
         return false;
       }
     }
-  } else {
-    // Manejar permisos para otras plataformas si es necesario
-    return false;
+  } else if (Platform.isIOS) {
+    // iOS permisos para fotos
+    print('Solicitando permisos para fotos en iOS');
+    PermissionStatus status = await Permission.photos.request();
+    print('Estado del permiso photos: $status');
+
+    if (status.isGranted) {
+      return true;
+    } else if (status.isPermanentlyDenied) {
+      print('Permiso denegado permanentemente. Abriendo configuración.');
+      await openAppSettings();
+      return false;
+    } else {
+      return false;
+    }
   }
+
+  // Si no es Android ni iOS
+  return false;
+}
+
+Future<int> _getAndroidSdkInt() async {
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+  return androidInfo.version.sdkInt;
 }
 
   Future<bool> _requestCameraPermission() async {
@@ -125,27 +142,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    if (!await requestStoragePermission()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Se necesita acceso a la galería')),
-      );
-      return;
-    }
-
-    print('📸 Iniciando selección de imagen desde galería');
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      print('✅ Imagen seleccionada desde galería: ${pickedFile.path}');
-      setState(() {
-        _image = File(pickedFile.path);
-        _isProcessing = true;
-      });
-      await _getImageDimensions();
-      await _detectFaces();
-    } else {
-      print('❌ No se seleccionó ninguna imagen de la galería');
-    }
+  if (!await requestStoragePermission()) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Se necesita acceso a la galería')),
+    );
+    return;
   }
+
+  print('📸 Iniciando selección de imagen desde galería');
+  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) {
+    print('✅ Imagen seleccionada desde galería: ${pickedFile.path}');
+    setState(() {
+      _image = File(pickedFile.path);
+      _isProcessing = true;
+    });
+    await _getImageDimensions();
+    await _detectFaces();
+  } else {
+    print('❌ No se seleccionó ninguna imagen de la galería');
+  }
+}
+
 
   Future<void> _pickImageFromCamera() async {
     if (!await _requestCameraPermission()) {
