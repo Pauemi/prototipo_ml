@@ -41,19 +41,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<bool> requestStoragePermission() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      status = await Permission.storage.request();
+  // Verificar la versión de Android
+  if (Platform.isAndroid) {
+    if (await Permission.storage.isGranted) {
+      print('✅ Permiso de almacenamiento ya concedido.');
+      return true;
+    }
+
+    // Para Android 13 y superiores
+    if (Platform.version.contains('33') || Platform.version.compareTo('33') > 0) {
+      // Solicitar permisos específicos
+      var statusImages = await Permission.photos.status;
+      var statusVideos = await Permission.videos.status;
+      var statusAudio = await Permission.audio.status;
+
+      if (!statusImages.isGranted) {
+        statusImages = await Permission.photos.request();
+      }
+      if (!statusVideos.isGranted) {
+        statusVideos = await Permission.videos.request();
+      }
+      if (!statusAudio.isGranted) {
+        statusAudio = await Permission.audio.request();
+      }
+
+      if (statusImages.isGranted && statusVideos.isGranted && statusAudio.isGranted) {
+        print('✅ Permisos de almacenamiento concedidos.');
+        return true;
+      } else {
+        print('❌ Permisos de almacenamiento denegados.');
+        return false;
+      }
+    } else {
+      // Para versiones anteriores a Android 13
+      var status = await Permission.storage.request();
+
       if (status.isGranted) {
         print('✅ Permiso de almacenamiento concedido.');
         return true;
+      } else if (status.isPermanentlyDenied) {
+        print('❌ Permiso de almacenamiento denegado permanentemente. Abriendo configuración.');
+        await openAppSettings();
+        return false;
       } else {
         print('❌ Permiso de almacenamiento denegado.');
         return false;
       }
     }
-    return true;
+  } else {
+    // Manejar permisos para otras plataformas si es necesario
+    return false;
   }
+}
 
   Future<bool> _requestCameraPermission() async {
     var status = await Permission.camera.status;

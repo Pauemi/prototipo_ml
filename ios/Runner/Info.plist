@@ -5,7 +5,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Necesitamos acceder a la cámara para detectar rostros.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Necesitamos acceder a la galería para seleccionar imágenes.</string>
+	<string>Esta aplicación necesita acceder a tu biblioteca de fotos para seleccionar y guardar imágenes.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
