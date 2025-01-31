@@ -1,18 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:flutter/material.dart';
 
 import 'homepage.dart';
-import 'services/firebase_options.dart' as firebase_options;
 import 'utils/global_key.dart';
 import 'widgets/face_benchmark.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await firebase_core.Firebase.initializeApp(
-    options: firebase_options.DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const FaceDetectionML());
 }
 
@@ -25,7 +20,7 @@ class FaceDetectionML extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Prototipo Detección facial',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.indigo,
       ),
       debugShowCheckedModeBanner: false,
       home: const MainScreen(), // Establecer la pantalla principal
@@ -68,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.indigoAccent,
         title: const Text(
           'Prototipo Multiplataforma',
           style: TextStyle(
@@ -85,6 +80,7 @@ class _MainScreenState extends State<MainScreen> {
             Flexible(
         child: CarouselSlider(
           options: CarouselOptions(
+            height: 400,
             autoPlay: false,
             enlargeCenterPage: true,
             onPageChanged: (index, reason) {
@@ -174,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightGreen,
+                    backgroundColor: Colors.indigo[300],
                     foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.w600,
@@ -202,7 +198,7 @@ class _MainScreenState extends State<MainScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blueGrey[800],
                     foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.w600,

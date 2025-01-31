@@ -54,6 +54,21 @@ class _HomePageState extends State<HomePage> {
     }
     return true;
   }
+
+  Future<bool> _requestCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      status = await Permission.camera.request();
+      if (status.isGranted) {
+        print('✅ Permiso de cámara concedido.');
+        return true;
+      } else {
+        print('❌ Permiso de cámara denegado.');
+        return false;
+      }
+    }
+    return true;
+  }
   
   Future<File> _prepareImage(File imageFile) async {
     try {
@@ -71,6 +86,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _pickImageFromGallery() async {
+    if (!await requestStoragePermission()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Se necesita acceso a la galería')),
+      );
+      return;
+    }
+
     print('📸 Iniciando selección de imagen desde galería');
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -87,6 +109,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _pickImageFromCamera() async {
+    if (!await _requestCameraPermission()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Se necesita acceso a la cámara')),
+      );
+      return;
+    }
+
     print('📸 Iniciando captura de imagen desde cámara');
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
@@ -136,8 +165,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detección de Rostros'),
-        backgroundColor: Colors.green,
+        title: const Text('Detección de Rostros con ML Kit'),
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Column(
         children: [
@@ -194,7 +223,8 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.camera_alt),
                 label: const Text('Usar Cámara'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.indigo[300],
+                  foregroundColor: Colors.white,
                 ),
               ),
               ElevatedButton.icon(
@@ -202,7 +232,8 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.photo),
                 label: const Text('Galería'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.blueGrey[800],
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],
