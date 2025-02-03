@@ -31,7 +31,7 @@ class FaceBenchmarkService {
   FaceBenchmarkService() {
     faceDetector = FaceDetector(
       options: FaceDetectorOptions(
-        performanceMode: FaceDetectorMode.accurate,
+        performanceMode: FaceDetectorMode.fast,
         enableLandmarks: false,
         enableContours: false,
         minFaceSize: 0.05, // Ajustar si las caras son pequeñas
@@ -82,40 +82,44 @@ class FaceBenchmarkService {
     }
   }
 
-  /// Directorio interno donde se guardan los resultados
-  Future<String> _getResultsDirectory() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final resultsPath = '${directory.path}/BenchmarkResults';
-    final resultsDir = Directory(resultsPath);
-    if (!await resultsDir.exists()) {
-      await resultsDir.create(recursive: true);
-      print('📁 Creando directorio de resultados: $resultsPath');
-    }
-    return resultsPath;
+Future<String> _getResultsDirectory() async {
+  Directory directory;
+  directory = await getApplicationDocumentsDirectory();
+
+  final resultsPath = '${directory.path}/BenchmarkResults';
+  final resultsDir = Directory(resultsPath);
+
+  if (!await resultsDir.exists()) {
+    await resultsDir.create(recursive: true);
+    print('📁 Creando directorio de resultados: $resultsPath');
   }
 
-  /// Inicializar archivo CSV con cabecera (opcional si quieres uno único por ejecución)
-  Future<File> initializeCSV() async {
-    final resultsPath = await _getResultsDirectory();
-    final timestamp = DateFormat('yyyyMMdd_HHmmss_SSS').format(DateTime.now());
-    final fileName = 'benchmark_results_$timestamp.csv';
-    final file = File('$resultsPath/$fileName');
+  return resultsPath;
+}
 
-    // Escribir cabecera
-    await file.writeAsString(
-      'image_path,ground_truth,detected,iou,true_pos,false_pos,false_neg,'
-      'precision,recall,f1_score,processing_time_ms\n',
-    );
-    print('📄 Archivo CSV creado: ${file.path}');
-    return file;
-  }
+/// Inicializa el archivo CSV con su cabecera.
+Future<File> initializeCSV() async {
+
+
+  final resultsPath = await _getResultsDirectory();
+  final timestamp = DateFormat('yyyyMMdd_HHmmss_SSS').format(DateTime.now());
+  final fileName = 'benchmark_results_$timestamp.csv';
+  final file = File('$resultsPath/$fileName');
+
+  // Escribir la cabecera del CSV.
+  await file.writeAsString(
+    'image_path,ground_truth,detected,iou,true_pos,false_pos,false_neg,'
+    'precision,recall,f1_score,processing_time_ms\n',
+  );
+
+  print('📄 Archivo CSV creado: ${file.path}');
+  return file;
+}
 
   /// Detección de rostros usando ML Kit
   Future<List<BoundingBox>> detectFaces(InputImage inputImage) async {
-    print('🔍 Iniciando detección de caras...');
     try {
       final List<Face> faces = await faceDetector.processImage(inputImage);
-      print('✅ Detección completada. Caras encontradas: ${faces.length}');
       return faces.map((face) {
         return BoundingBox(
           x: face.boundingBox.left,
@@ -164,7 +168,7 @@ class FaceBenchmarkService {
   /// Exportar resultados de UNA imagen al CSV global
   Future<void> exportResultsToCSV(BenchmarkResult result) async {
     try {
-      // Si no existe csvFile, inicialízalo
+      // Continue with existing code
       if (csvFile == null) {
         csvFile = await initializeCSV();
       }
@@ -267,8 +271,8 @@ class FaceBenchmarkService {
         print('\n🖼️ Procesando imagen: $imageName [GT=$groundTruth]');
 
         try {
-          stopwatch.reset();
-          stopwatch.start();
+          
+          
 
           // Preparar InputImage
           final inputImage =
@@ -313,10 +317,11 @@ class FaceBenchmarkService {
               print('❌ Error parseando caja en $imageName: $boxError');
             }
           }
-
+          stopwatch.reset();
+          stopwatch.start();
           // Detectar rostros con MLKit
           final detectedBoxes = await detectFaces(inputImage);
-
+          stopwatch.stop();
           // Asumimos que no hubo reescalado
           // Si lo hubiera, tendrías que multiplicar x,y,width,height
           // por un factor scaleX y scaleY
@@ -365,7 +370,7 @@ class FaceBenchmarkService {
               : 0.0;
 
           final elapsedMs = stopwatch.elapsedMilliseconds;
-          stopwatch.stop();
+          
 
           // Crear objeto de resultados
           final result = BenchmarkResult(

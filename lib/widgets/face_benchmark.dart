@@ -1,12 +1,11 @@
 // lib/widgets/face_benchmark.dart
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:prototipo_mlkit/utils/permission.dart';
 
-import '../utils/benchmark_result.dart';
 import '../services/face_benchmark_service.dart';
+import '../utils/benchmark_result.dart';
 
 class FaceBenchmark extends StatefulWidget {
   const FaceBenchmark({super.key});
@@ -47,17 +46,15 @@ class _FaceBenchmarkState extends State<FaceBenchmark> {
   }
 
   Future<void> _runBenchmark() async {
-    if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
-      if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Se requieren permisos de almacenamiento para guardar el archivo CSV'),
-          ),
-        );
-        return;
-      }
+     // Verificar permisos antes de proceder
+    bool hasPermission = await ensureStoragePermission();
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Se requieren permisos de almacenamiento para guardar el archivo CSV.'),
+        ),
+      );
+      return;
     }
 
     print('🚀 Iniciando benchmark...');

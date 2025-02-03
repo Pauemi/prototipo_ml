@@ -142,25 +142,35 @@ Future<int> _getAndroidSdkInt() async {
   }
 
   Future<void> _pickImageFromGallery() async {
-  if (!await requestStoragePermission()) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Se necesita acceso a la galería')),
-    );
-    return;
-  }
+   try {
+    if (!await requestStoragePermission()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Se necesita acceso a la galería')),
+      );
+      return;
+    }
 
-  print('📸 Iniciando selección de imagen desde galería');
-  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) {
-    print('✅ Imagen seleccionada desde galería: ${pickedFile.path}');
-    setState(() {
-      _image = File(pickedFile.path);
-      _isProcessing = true;
-    });
-    await _getImageDimensions();
-    await _detectFaces();
-  } else {
-    print('❌ No se seleccionó ninguna imagen de la galería');
+    print('📸 Iniciando selección de imagen desde galería');
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      print('✅ Imagen seleccionada desde galería: ${pickedFile.path}');
+      final rotatedImage = await _prepareImage(File(pickedFile.path));
+      setState(() {
+        _image = rotatedImage;
+        _isProcessing = true;
+      });
+
+      await _getImageDimensions();
+      await _detectFaces();
+    } else {
+      print('❌ No se seleccionó ninguna imagen de la galería');
+    }
+  } catch (e) {
+    print('❌ Error al seleccionar imagen: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al seleccionar imagen: $e')),
+    );
   }
 }
 
